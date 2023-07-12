@@ -34,36 +34,44 @@ from flask_restful import Api, Resource
 app = Flask(__name__)
 api = Api(app)
 
-def get_googletrends(keywords, geo, date_start):
+def get_googletrends(keywords, geo=None, date_start=None):
     results = googletrends.temporal(keywords, geo=geo, date_start=date_start)
     geo_results = googletrends.spatio(keywords, geo=geo, date_start=date_start)
-    trending_results = googletrends.trending(keywords, geo=geo, date_start)
+    trending_results = googletrends.trending(keywords, geo=geo, date_start=date_start)
     return {
         "results": results,
         "geo_results": geo_results,
         "trending_results": trending_results
     }
-Class Geo_info(Resource):
+class Geo(Resource):
     def get(self):
         # %% Get all country names
         geo_names = googletrends.get_geo_names()
+
         return {
             "Success": True,
             "geo_names": geo_names
             }
+    
 class Main(Resource):
 	def get(self, keywords, geo, date_start):
-	    keywords = list(keywords.split(","))
-	    geo = list(keywords.split(","))
-	    output = get_googletrends(keywords, geo, date_start)
-		return {"Success": True,
-		        "keywords":str(keywords),
-		        "geo":str(geo),
-		        "date_start":date_start,
-				"data": output}
+            keywords = list(keywords.split(","))
+            geo = list(geo.split(","))
+            output = get_googletrends(keywords, geo, date_start)
 
-api.add_resource(Geo_info, "/geo_info")
-api.add_resource(Main, "/googletrends/<str:keywords>/<str:geo>/<str:date_start>") 
+            return {"Success": True,
+                        "keywords":str(keywords),
+                        "geo":str(geo),
+                        "date_start":date_start,
+                        "data": output
+                        }
+
+api.add_resource(Geo, "/geo_info")
+# api.add_resource(Main, "/googletrends/<str:keywords>/<str:geo>/<str:date_start>") 
 
 if __name__== '__main__':
-	app.run(debug=True)
+	# app.run(debug=True)
+    keywords = ["Ethereum", "Bitcoin"]
+    geo = ["NG", "italy"]
+    date_start = "02-03-2022"
+    get_googletrends(keywords, geo, date_start)
